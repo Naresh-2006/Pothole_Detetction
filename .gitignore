@@ -1,0 +1,30 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+
+# IDE / Editor directories
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Pytest cache
+.pytest_cache/
+
+# Uploads and temporary directories
+uploads/
+
+# Model checkpoints and large files
+*.pt
+
+# Notebook checkpoints
+.ipynb_checkpoints/
