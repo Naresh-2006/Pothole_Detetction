@@ -7,7 +7,7 @@ from ultralytics import YOLO
 import cv2
 
 # Load the trained model only once
-model = YOLO("models/best (1).pt")
+model = YOLO("models/best.pt")
 
 
 def detect_objects(image_path):
