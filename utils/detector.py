@@ -1,13 +1,11 @@
-import os
-
-print(os.getcwd())
-print(os.listdir())
+from pathlib import Path
 
 from ultralytics import YOLO
 import cv2
 
 # Load the trained model only once
-model = YOLO("models/best.pt")
+MODEL_PATH = Path(__file__).resolve().parent.parent / "best.pt"
+model = YOLO(str(MODEL_PATH))
 
 
 def detect_objects(image_path):
