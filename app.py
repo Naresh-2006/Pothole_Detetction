@@ -70,6 +70,31 @@ h1, h2, h3, p, label, div {
     max-width: 540px;
 }
 
+.topbar {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+}
+
+.brand-mark {
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: .78rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.live-pill {
+    border: 1px solid #4a654b;
+    border-radius: 999px;
+    color: var(--lime);
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    padding: .45rem .75rem;
+    text-transform: uppercase;
+}
+
 .upload-panel, .metric-panel {
     background: rgba(23, 32, 30, .82);
     border: 1px solid var(--line);
@@ -118,6 +143,51 @@ h1, h2, h3, p, label, div {
     margin: 2.3rem 0 1rem;
 }
 
+.section-label {
+    color: var(--orange);
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .12em;
+    margin: 2.2rem 0 .8rem;
+    text-transform: uppercase;
+}
+
+.risk-panel {
+    background: linear-gradient(135deg, #293b2d, #18251f);
+    border: 1px solid #466247;
+    border-radius: 8px;
+    padding: 1.2rem 1.35rem;
+}
+
+.risk-title {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.risk-value {
+    color: var(--lime);
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: .45rem 0 .25rem;
+}
+
+.risk-copy { color: var(--muted); font-size: .88rem; }
+
+.info-panel {
+    background: rgba(23, 32, 30, .62);
+    border-left: 2px solid var(--orange);
+    padding: .8rem 1rem;
+}
+
+.info-panel p { color: var(--muted); font-size: .82rem; margin: .2rem 0; }
+.info-panel strong { color: var(--ink); }
+
+.stProgress > div > div > div > div { background-color: var(--lime); }
+
 .image-label {
     color: var(--muted);
     font-family: 'DM Mono', monospace;
@@ -143,6 +213,10 @@ hr { border-color: var(--line); }
 """, unsafe_allow_html=True)
 
 st.markdown("""
+<div class="topbar">
+    <div class="brand-mark">Pothole detection / field dashboard</div>
+    <div class="live-pill"><span class="status-dot"></span>Model online</div>
+</div>
 <section class="hero">
     <div class="eyebrow">Road intelligence / YOLO11 vision system</div>
     <h1>Read the road<br><span>before it breaks.</span></h1>
@@ -169,6 +243,26 @@ if uploaded_file is not None:
     st.markdown('<div class="status-line"><span class="status-dot"></span>Image received · running visual analysis</div>', unsafe_allow_html=True)
     original_img, detected_img, potholes, cracks, normal = detect_objects(image_path)
 
+    total_detections = potholes + cracks + normal
+    hazard_detections = potholes + cracks
+    risk_ratio = hazard_detections / total_detections if total_detections else 0
+    risk_level = "High attention" if risk_ratio >= 0.5 else "Review recommended" if hazard_detections else "Clear route"
+    risk_copy = "Potential road defects detected" if hazard_detections else "No potholes or cracks detected"
+
+    st.markdown('<div class="section-label">02 / Scan overview</div>', unsafe_allow_html=True)
+    overview_col, detail_col = st.columns([1.2, 1], gap="large")
+    with overview_col:
+        st.markdown(f'''<div class="risk-panel"><div class="risk-title">Road condition signal</div><div class="risk-value">{risk_level}</div><div class="risk-copy">{risk_copy}</div></div>''', unsafe_allow_html=True)
+    with detail_col:
+        st.markdown(f'''<div class="info-panel"><p><strong>File</strong> {uploaded_file.name}</p><p><strong>Model</strong> YOLO11 road classifier</p><p><strong>Objects counted</strong> {total_detections}</p></div>''', unsafe_allow_html=True)
+
+    st.markdown('<div class="section-label">03 / Detection metrics</div>', unsafe_allow_html=True)
+    metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+    metric_col1.metric("Total objects", total_detections)
+    metric_col2.metric("Potholes", potholes)
+    metric_col3.metric("Cracks", cracks)
+    metric_col4.metric("Clear road", normal)
+
     st.markdown('<div class="result-heading">Visual comparison</div>', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
 
@@ -186,11 +280,15 @@ if uploaded_file is not None:
             use_container_width=True
         )
 
-    st.markdown('<div class="result-heading">Detection summary</div>', unsafe_allow_html=True)
-    st.markdown('<div class="metric-panel">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-
-    c1.metric("Potholes", potholes)
-    c2.metric("Cracks", cracks)
-    c3.metric("Clear road", normal)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="result-heading">Class distribution</div>', unsafe_allow_html=True)
+    distribution_col, note_col = st.columns([1.4, 1], gap="large")
+    with distribution_col:
+        st.caption(f"{total_detections} object{'s' if total_detections != 1 else ''} identified in this frame")
+        st.write("Potholes")
+        st.progress(potholes / total_detections if total_detections else 0)
+        st.write("Cracks")
+        st.progress(cracks / total_detections if total_detections else 0)
+        st.write("Clear road")
+        st.progress(normal / total_detections if total_detections else 0)
+    with note_col:
+        st.markdown(f'''<div class="info-panel"><p><strong>Signal</strong></p><p>{risk_copy}. Use the annotated frame to locate each detected region.</p></div>''', unsafe_allow_html=True)
