@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from ultralytics import YOLO
-import cv2
+from PIL import Image
 
 # Load the trained model only once
 MODEL_PATH = Path(__file__).resolve().parent.parent / "best.pt"
@@ -21,7 +21,7 @@ def detect_objects(image_path):
     """
 
     # Read original image
-    original_img = cv2.imread(image_path)
+    original_img = Image.open(image_path).convert("RGB")
 
     # Run prediction
     results = model.predict(
@@ -33,7 +33,7 @@ def detect_objects(image_path):
     result = results[0]
 
     # Draw bounding boxes
-    detected_img = result.plot()
+    detected_img = Image.fromarray(result.plot()[:, :, ::-1])
 
     pothole_count = 0
     crack_count = 0
