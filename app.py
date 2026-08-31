@@ -10,7 +10,7 @@ from utils.detector import detect_objects
 # -------------------------------
 
 st.set_page_config(
-    page_title="Pothole Detection",
+    page_title="Pothole Detection | Live Dashboard",
     page_icon="🛣️",
     layout="wide"
 )
@@ -57,7 +57,7 @@ hr { border-color: #2d3a36; }
 
 st.markdown("""
 <div class="topbar">
-    <div class="topline">Road intelligence / live field dashboard</div>
+    <div class="topline">Project: Pothole Detection / live field dashboard</div>
     <div class="creator">Created by NARESH<span>727824tuam029</span></div>
 </div>
 <section class="hero">
