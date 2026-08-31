@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from io import BytesIO
 from datetime import datetime
 
 from utils.detector import detect_objects
@@ -22,6 +23,9 @@ st.markdown("""
 .block-container { max-width: 1180px; padding: 2.5rem 2rem 4rem; }
 h1, h2, h3, p, label, div { font-family: 'Space Grotesk', sans-serif; }
 .topline { color: #d7f45b; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+.topbar { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: .6rem; }
+.creator { color: #eef2f0; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .04em; text-align: right; }
+.creator span { color: #9ca9a4; display: block; font-size: .62rem; margin-top: .25rem; }
 .hero { border-bottom: 1px solid #2d3a36; margin: .8rem 0 2rem; padding-bottom: 2rem; }
 .hero h1 { color: #eef2f0; font-size: clamp(2.8rem, 7vw, 5.8rem); letter-spacing: -.05em; line-height: .92; margin: 0; }
 .hero h1 span { color: #d7f45b; }
@@ -44,7 +48,10 @@ hr { border-color: #2d3a36; }
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="topline">Road intelligence / live field dashboard</div>
+<div class="topbar">
+    <div class="topline">Road intelligence / live field dashboard</div>
+    <div class="creator">Created by NARESH<span>727824tuam029</span></div>
+</div>
 <section class="hero">
     <h1>Read the road<br><span>before it breaks.</span></h1>
     <p>Upload a road image to identify potholes, cracks, and clear pavement with YOLO11 computer vision.</p>
@@ -128,6 +135,15 @@ if uploaded_file is not None:
     with col2:
         st.markdown('<div class="image-label">Annotated prediction</div>', unsafe_allow_html=True)
         st.image(detected_img, use_container_width=True)
+        download_buffer = BytesIO()
+        detected_img.save(download_buffer, format="PNG")
+        st.download_button(
+            "Download annotated image",
+            data=download_buffer.getvalue(),
+            file_name="pothole_detection_result.png",
+            mime="image/png",
+            use_container_width=True,
+        )
 
     st.markdown('<div class="section-label">04 / Detection summary</div>', unsafe_allow_html=True)
 
@@ -145,6 +161,7 @@ if uploaded_file is not None:
         }
         st.bar_chart(chart_data, horizontal=True, y_label="Detection", x_label="Probability")
         st.caption("Each bar represents the model confidence for one detected region.")
+        st.caption("Confidence guide: 90%+ strong signal · 60-89% review · below 60% low signal")
     else:
         st.info("No objects were detected in this image.")
 
