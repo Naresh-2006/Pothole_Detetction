@@ -26,6 +26,14 @@ h1, h2, h3, p, label, div { font-family: 'Space Grotesk', sans-serif; }
 .topbar { align-items: flex-start; display: flex; justify-content: space-between; margin-bottom: .6rem; }
 .creator { color: #eef2f0; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .04em; text-align: right; }
 .creator span { color: #9ca9a4; display: block; font-size: .62rem; margin-top: .25rem; }
+.model-card { background: rgba(23, 32, 30, .72); border: 1px solid #2d3a36; border-radius: 8px; padding: 1rem; }
+.model-card h3 { color: #eef2f0; font-size: 1rem; margin: 0 0 .7rem; }
+.model-card p { color: #9ca9a4; font-size: .78rem; margin: .35rem 0; }
+.model-dot { background: #76e39a; border-radius: 50%; display: inline-block; height: 7px; margin-right: 6px; width: 7px; }
+.scan-meta { color: #9ca9a4; font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .04em; margin-top: .8rem; }
+.legend { align-items: center; color: #9ca9a4; display: flex; flex-wrap: wrap; font-family: 'DM Mono', monospace; font-size: .68rem; gap: .8rem; margin-top: .6rem; }
+.legend-item { align-items: center; display: flex; gap: .35rem; }
+.legend-dot { border-radius: 50%; height: 8px; width: 8px; }
 .hero { border-bottom: 1px solid #2d3a36; margin: .8rem 0 2rem; padding-bottom: 2rem; }
 .hero h1 { color: #eef2f0; font-size: clamp(2.8rem, 7vw, 5.8rem); letter-spacing: -.05em; line-height: .92; margin: 0; }
 .hero h1 span { color: #d7f45b; }
@@ -57,6 +65,20 @@ st.markdown("""
     <p>Upload a road image to identify potholes, cracks, and clear pavement with YOLO11 computer vision.</p>
 </section>
 """, unsafe_allow_html=True)
+
+with st.sidebar:
+    st.markdown("### Field console")
+    st.markdown("""
+    <div class="model-card">
+        <h3><span class="model-dot"></span>Model online</h3>
+        <p><strong>YOLO11</strong> object detection</p>
+        <p>Three-class road condition analysis</p>
+        <p>Confidence threshold: 10%</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("#### Detection classes")
+    st.markdown("Pothole  ·  Crack  ·  Normal Road")
+    st.caption("Upload an image to begin a new scan.")
 
 st.markdown('<div class="panel"><div class="panel-label">01 / Upload inspection image</div>', unsafe_allow_html=True)
 
@@ -134,6 +156,10 @@ if uploaded_file is not None:
         f"{hazard_predictions} road issue(s) detected"
     )
     st.caption("Accident probability is an estimate based on detected hazard confidence, not a calibrated safety statistic.")
+    st.markdown(
+        f'<div class="scan-meta">SCAN ID · {uploaded_file.name} · {total_predictions} prediction(s)</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown('<div class="section-label">03 / Visual evidence</div>', unsafe_allow_html=True)
 
@@ -173,6 +199,13 @@ if uploaded_file is not None:
         st.bar_chart(chart_data, horizontal=True, y_label="Detection", x_label="Probability")
         st.caption("Each bar represents the model confidence for one detected region.")
         st.caption("Confidence guide: 90%+ strong signal · 60-89% review · below 60% low signal")
+        st.markdown('''
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#ff6b5f"></span>Pothole</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#ffb454"></span>Crack</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#76e39a"></span>Normal road</span>
+        </div>
+        ''', unsafe_allow_html=True)
     else:
         st.info("No objects were detected in this image.")
 
