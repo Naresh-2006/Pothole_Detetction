@@ -85,6 +85,14 @@ h1, h2, h3, p, label, div {
     text-transform: uppercase;
 }
 
+.creator-credit {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .04em;
+    margin-top: .35rem;
+}
+
 .live-pill {
     border: 1px solid #4a654b;
     border-radius: 999px;
@@ -214,7 +222,10 @@ hr { border-color: var(--line); }
 
 st.markdown("""
 <div class="topbar">
-    <div class="brand-mark">Pothole detection / field dashboard</div>
+    <div>
+        <div class="brand-mark">Pothole detection / field dashboard</div>
+        <div class="creator-credit">Created by NARESH · 727824tuam029</div>
+    </div>
     <div class="live-pill"><span class="status-dot"></span>Model online</div>
 </div>
 <section class="hero">
