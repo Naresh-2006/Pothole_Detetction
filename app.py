@@ -95,6 +95,15 @@ if uploaded_file is not None:
         (item["Probability"] for item in predictions),
         default=0
     )
+    hazard_scores = [
+        item["Probability"] * (1.0 if item["Class"] == "Pothhole" else 0.65)
+        for item in predictions
+        if item["Class"] in {"Pothhole", "Crack"}
+    ]
+    accident_probability = min(
+        1.0,
+        max(hazard_scores, default=0) + max(0, len(hazard_scores) - 1) * 0.05
+    )
     if potholes:
         status = "HIGH RISK"
         status_color = "#ff6b5f"
@@ -109,7 +118,7 @@ if uploaded_file is not None:
         status_copy = "No road defects detected in this frame."
 
     st.markdown('<div class="section-label">02 / Probability status</div>', unsafe_allow_html=True)
-    status_col, total_col, average_col, peak_col = st.columns(4)
+    status_col, total_col, average_col, peak_col, accident_col = st.columns(5)
     status_col.markdown(
         f"<div class='status-card'><div class='status-label'>Road condition</div><div class='status-value' style='color:{status_color}'>{status}</div><div class='status-copy'>{status_copy}</div></div>",
         unsafe_allow_html=True
@@ -117,12 +126,14 @@ if uploaded_file is not None:
     total_col.metric("Predictions", total_predictions)
     average_col.metric("Average probability", f"{average_probability:.1%}")
     peak_col.metric("Highest probability", f"{highest_probability:.1%}")
-    st.progress(average_probability, text=f"Average model confidence · {average_probability:.1%}")
+    accident_col.metric("Accident probability", f"{accident_probability:.1%}")
+    st.progress(accident_probability, text=f"Estimated accident probability · {accident_probability:.1%}")
 
     st.caption(
         f"Scan completed {datetime.now().strftime('%d %b %Y, %H:%M:%S')} · "
         f"{hazard_predictions} road issue(s) detected"
     )
+    st.caption("Accident probability is an estimate based on detected hazard confidence, not a calibrated safety statistic.")
 
     st.markdown('<div class="section-label">03 / Visual evidence</div>', unsafe_allow_html=True)
 
