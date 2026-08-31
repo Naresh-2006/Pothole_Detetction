@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-import cv2
 
 from utils.detector import detect_objects
 
@@ -279,17 +278,11 @@ if uploaded_file is not None:
 
     with col1:
         st.markdown('<div class="image-label">Source frame</div>', unsafe_allow_html=True)
-        st.image(
-            cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB),
-            use_container_width=True
-        )
+        st.image(original_img, use_container_width=True)
 
     with col2:
         st.markdown('<div class="image-label">Annotated output</div>', unsafe_allow_html=True)
-        st.image(
-            cv2.cvtColor(detected_img, cv2.COLOR_BGR2RGB),
-            use_container_width=True
-        )
+        st.image(detected_img, use_container_width=True)
 
     st.markdown('<div class="result-heading">Class distribution</div>', unsafe_allow_html=True)
     distribution_col, note_col = st.columns([1.4, 1], gap="large")
